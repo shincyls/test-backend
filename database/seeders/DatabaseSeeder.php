@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         // Create admin user
         $admin = Member::create([
-            'name' => 'Admin User',
+            'name' => 'First Member',
             'username' => 'admin',
             'email' => 'admin@fitness.com',
             'password' => 'password123',
@@ -74,6 +74,11 @@ class DatabaseSeeder extends Seeder
             'start_time' => '09:00',
             'end_time' => '10:00',
             'status' => 'confirmed',
+            'payment_cost' => 10.00,
+            'payment_status' => 'confirmed',
+            'payment_method' => 'cash',
+            'payment_transaction_id' => '123456',
+            'earn_points' => 10,
         ]);
 
         Booking::create([
@@ -84,6 +89,11 @@ class DatabaseSeeder extends Seeder
             'start_time' => '14:00',
             'end_time' => '15:00',
             'status' => 'pending',
+            'payment_cost' => 15.00,
+            'payment_status' => 'pending',
+            'payment_method' => 'credit_card',
+            'payment_transaction_id' => '789012',
+            'earn_points' => 15,
         ]);
 
         Booking::create([
@@ -94,6 +104,11 @@ class DatabaseSeeder extends Seeder
             'start_time' => '11:00',
             'end_time' => '12:00',
             'status' => 'confirmed',
+            'payment_cost' => 20.00,
+            'payment_status' => 'confirmed',
+            'payment_method' => 'debit_card',
+            'payment_transaction_id' => '345678',
+            'earn_points' => 20,
         ]);
     }
 }

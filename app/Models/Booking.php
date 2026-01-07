@@ -17,6 +17,11 @@ class Booking extends Model
         'start_time',
         'end_time',
         'status',
+        'payment_cost',
+        'payment_status',
+        'payment_method',
+        'payment_transaction_id',
+        'earn_points',
     ];
 
     protected function casts(): array

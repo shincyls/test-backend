@@ -20,6 +20,11 @@ return new class extends Migration
             $table->time('start_time');
             $table->time('end_time');
             $table->enum('status', ['pending', 'confirmed', 'cancelled'])->default('pending');
+            $table->decimal('payment_cost', 8, 2)->nullable();
+            $table->enum('payment_status', ['pending', 'confirmed', 'cancelled'])->default('pending');
+            $table->string('payment_method')->nullable();
+            $table->string('payment_transaction_id')->nullable();
+            $table->integer('earn_points')->default(0);
             $table->timestamps();
         });
     }
