@@ -35,13 +35,15 @@ DB_PASSWORD=
 php artisan migrate:fresh --seed
 ```
 
+# Configure for .env
+cp .env.example .env
+Update MYSQL database credentials in .env
+
 ## Running the Server
 
 ```bash
 php artisan serve
 ```
-
-The API will be available at `http://127.0.0.1:8000`
 
 ## API Endpoints
 
