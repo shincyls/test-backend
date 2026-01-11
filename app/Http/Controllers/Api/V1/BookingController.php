@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Member;
 use Illuminate\Http\Request;
 
 class BookingController extends Controller
@@ -30,6 +31,20 @@ class BookingController extends Controller
         // Filter by date
         if ($request->has('booking_date') && $request->booking_date) {
             $query->whereDate('booking_date', $request->booking_date);
+        }
+
+        // Filter by username
+        if ($request->has('username') && $request->username) {
+            $query->whereHas('member', function ($q) use ($request) {
+                $q->where('username', 'like', '%' . $request->username . '%');
+            });
+        }
+
+        // Filter by phone
+        if ($request->has('phone') && $request->phone) {
+            $query->whereHas('member', function ($q) use ($request) {
+                $q->where('phone', 'like', '%' . $request->phone . '%');
+            });
         }
 
         // Pagination
@@ -59,6 +74,13 @@ class BookingController extends Controller
             'status' => 'nullable|in:pending,confirmed,cancelled',
         ]);
 
+        // format booking_date to Y-m-d and start_time, end_time to H:i:s
+        $request->merge([
+            'booking_date' => date('Y-m-d', strtotime($request->booking_date)),
+            'start_time' => date('H:i:s', strtotime($request->start_time)),
+            'end_time' => date('H:i:s', strtotime($request->end_time)),
+        ]);
+
         $booking = Booking::create([
             'member_id' => $request->member_id,
             'class_name' => $request->class_name,
@@ -69,8 +91,13 @@ class BookingController extends Controller
             'status' => $request->status ?? 'pending',
         ]);
 
+        // Update Earn Point
+        $member = Member::findOrFail($request->member_id);
+        $member->current_points = Booking::where('member_id', $request->member_id)->sum('earn_points');
+        $member->save();
+
         return response()->json([
-            'message' => 'Booking created successfully',
+            'message' => 'Booking created successfully, User points updated to ' . $member->current_points,
             'booking' => $booking->load('member'),
         ], 201);
     }
@@ -86,23 +113,33 @@ class BookingController extends Controller
     {
         $booking = Booking::findOrFail($id);
 
+        // format booking_date to Y-m-d and start_time, end_time to H:i:s
+        $request->merge([
+            'booking_date' => date('Y-m-d', strtotime($request->booking_date)),
+            'start_time' => date('H:i:s', strtotime($request->start_time)),
+            'end_time' => date('H:i:s', strtotime($request->end_time)),
+        ]);
+
         $request->validate([
             'member_id' => 'sometimes|exists:members,id',
             'class_name' => 'sometimes|string|max:255',
             'room_name' => 'nullable|string|max:255',
-            'booking_date' => 'sometimes|date',
-            'start_time' => 'sometimes|date_format:H:i',
-            'end_time' => 'sometimes|date_format:H:i',
             'status' => 'nullable|in:pending,confirmed,cancelled',
+            'earn_points' => 'nullable|integer',
         ]);
 
         $booking->update($request->only([
             'member_id', 'class_name', 'room_name',
-            'booking_date', 'start_time', 'end_time', 'status'
+            'booking_date', 'start_time', 'end_time', 'status', 'earn_points'
         ]));
 
+        // Update Earn Point
+        $member = Member::findOrFail($request->member_id);
+        $member->current_points = Booking::where('member_id', $request->member_id)->sum('earn_points');
+        $member->save();
+
         return response()->json([
-            'message' => 'Booking updated successfully',
+            'message' => 'Booking updated successfully. User points updated to ' . $member->current_points,
             'booking' => $booking->fresh()->load('member'),
         ]);
     }

@@ -27,6 +27,11 @@ class MemberController extends Controller
             $query->where('email', 'like', '%' . $request->email . '%');
         }
 
+       // Filter by phone
+        if ($request->has('phone') && $request->phone) {
+            $query->where('phone', 'like', '%' . $request->phone . '%');
+        }
+
         // Pagination
         $limit = $request->get('limit', 10);
         $page = $request->get('page', 1);
